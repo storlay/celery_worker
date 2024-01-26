@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis
+    restart: always
+
+  webapp:
+    build:
+      context: webapp
+    ports:
+      - "8000:8000"
+    command: sh -c "python3 image_downloader/manage.py runserver 0.0.0.0:8000"
+
+  worker:
+    restart: always
+    build:
+      context: webapp
+    volumes:
+      - ./images:/app/image_downloader/images
+    command: sh -c "celery --workdir=image_downloader -A image_downloader worker"
